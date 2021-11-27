@@ -18,10 +18,18 @@ WHERE rental_rate = (
 WHERE rental_rate = (
 SELECT MIN(rental_rate) FROM film
 ))
-UNION
+INTERSECT
 (SELECT * FROM film
 WHERE replacement_cost = (
 SELECT MIN(replacement_cost) FROM film
 ));
 
 --payment tablosunda en fazla sayıda alışveriş yapan müşterileri(customer) sıralayınız.
+WITH alisverissayilari(customer_id, sayi) AS (select customer_id, COUNT(amount) from payment
+group by customer_id),
+
+maxalisveris(maxsayi) AS (select max(sayi) from alisverissayilari)
+
+select c.*
+from alisverissayilari a, maxalisveris m, customer c
+where a.sayi=m.maxsayi and c.customer_id=a.customer_id
